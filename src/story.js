@@ -65,9 +65,7 @@ export default class Story {
     return new Promise( (resolve, reject) => {
       return axios(request)
         .then((response) => {
-          let instance = new this()
-          instance.setProperties(response.data)
-          resolve(instance)
+          resolve(new this(response.data))
         }).catch(reject)
     })
   }
@@ -88,9 +86,7 @@ export default class Story {
 
   static _createStoriesFrom(storyInfoArray) {
     return storyInfoArray.map((storyInfo) => {
-      let instance = new this()
-      instance.setProperties(storyInfo)
-      return instance
+      return new this(storyInfo)
     })
   }
 

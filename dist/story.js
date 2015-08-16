@@ -17,6 +17,8 @@ var _axios2 = _interopRequireDefault(_axios);
 var Story = (function () {
   function Story(storyInfo) {
     _classCallCheck(this, Story);
+
+    if (storyInfo) this.setProperties(storyInfo);
   }
 
   // example
@@ -105,9 +107,7 @@ var Story = (function () {
 
       return new Promise(function (resolve, reject) {
         return (0, _axios2["default"])(request).then(function (response) {
-          var instance = new _this3();
-          instance.setProperties(response.data);
-          resolve(instance);
+          resolve(new _this3(response.data));
         })["catch"](reject);
       });
     }
@@ -132,9 +132,7 @@ var Story = (function () {
       var _this4 = this;
 
       return storyInfoArray.map(function (storyInfo) {
-        var instance = new _this4();
-        instance.setProperties(storyInfo);
-        return instance;
+        return new _this4(storyInfo);
       });
     }
   }, {
