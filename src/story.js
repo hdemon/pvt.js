@@ -2,6 +2,7 @@ import axios from "axios"
 
 export default class Story {
   constructor(storyInfo) {
+    if (storyInfo) this.setProperties(storyInfo)
   }
 
   update() {
