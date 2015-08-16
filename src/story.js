@@ -1,12 +1,22 @@
 import axios from "axios"
 
 export default class Story {
-  constructor(info) {
-    Object.getOwnPropertyNames(info).forEach((property) => { this[property] = info[property] })
+  constructor(storyInfo) {
+    Object.getOwnPropertyNames(storyInfo).forEach((property) => { this[property] = storyInfo[property] })
   }
 
   fetch() {
+    let request = Story._requestObject()
+    request.method = "GET"
+    request.url += "/" + this.id
 
+    return new Promise( (resolve, reject) => {
+      return axios(request)
+        .then((response) => {
+          Object.getOwnPropertyNames(response.data).forEach((property) => { this[property] = response.data[property] })
+          resolve(this)
+        }).catch(reject)
+    })
   }
 
   update() {
@@ -14,7 +24,17 @@ export default class Story {
   }
 
   save() {
+    let request = Story._requestObject()
+    request.method = "POST"
+    request.data = this
 
+    return new Promise( (resolve, reject) => {
+      return axios(request)
+        .then((response) => {
+          console.log(response);
+          resolve(this)
+        }).catch(reject)
+    })
   }
 
   static set(metaInfo) {
@@ -31,7 +51,7 @@ export default class Story {
       axios(request)
         .then((response) => {
           let stories = this._createStoriesFrom(response.data)
-          resolve(this._createStoriesFrom(response.data))
+          resolve(stories)
         }).catch(reject)
     })
   }
@@ -58,3 +78,20 @@ export default class Story {
     return Object.getOwnPropertyNames(parameters).map((key) => { return `${key}=${parameters[key]}` }).join("&")
   }
 }
+
+// example
+//
+// { kind: 'story',
+//   id: 100929808,
+//   created_at: '2015-08-10T13:02:36Z',
+//   updated_at: '2015-08-10T13:03:15Z',
+//   estimate: 1,
+//   story_type: 'feature',
+//   name: 'test3',
+//   current_state: 'started',
+//   requested_by_id: 599469,
+//   project_id: 498821,
+//   url: 'https://www.pivotaltracker.com/story/show/100929808',
+//   owner_ids: [ 599469 ],
+//   labels: [],
+//   owned_by_id: 599469 }
