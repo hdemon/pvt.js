@@ -9,19 +9,6 @@ export default class Story {
 
   }
 
-  save() {
-    let request = Story._requestObject()
-    request.method = "POST"
-    request.data = this
-
-    return new Promise( (resolve, reject) => {
-      return axios(request)
-        .then((response) => {
-          resolve(this)
-        }).catch(reject)
-    })
-  }
-
   setProperties(properties) {
     this.kind = properties.kind || ""
     this.id = Number(properties.id) || null
@@ -38,7 +25,7 @@ export default class Story {
     this.url = properties.url
   }
 
-  static set(metaInfo) {
+  static setMetaInfo(metaInfo) {
     this.projectId = metaInfo.projectId
     this.token = metaInfo.token
   }
@@ -66,6 +53,20 @@ export default class Story {
       return axios(request)
         .then((response) => {
           resolve(new this(response.data))
+        }).catch(reject)
+    })
+  }
+
+  static new(storyInfo) {
+    let instance = new Story(storyInfo)
+    let request = Story._requestObject()
+    request.method = "POST"
+    request.data = instance
+
+    return new Promise( (resolve, reject) => {
+      return axios(request)
+        .then((response) => {
+          resolve(instance)
         }).catch(reject)
     })
   }

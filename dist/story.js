@@ -42,21 +42,6 @@ var Story = (function () {
     key: "update",
     value: function update() {}
   }, {
-    key: "save",
-    value: function save() {
-      var _this = this;
-
-      var request = Story._requestObject();
-      request.method = "POST";
-      request.data = this;
-
-      return new Promise(function (resolve, reject) {
-        return (0, _axios2["default"])(request).then(function (response) {
-          resolve(_this);
-        })["catch"](reject);
-      });
-    }
-  }, {
     key: "setProperties",
     value: function setProperties(properties) {
       this.kind = properties.kind || "";
@@ -74,15 +59,15 @@ var Story = (function () {
       this.url = properties.url;
     }
   }], [{
-    key: "set",
-    value: function set(metaInfo) {
+    key: "setMetaInfo",
+    value: function setMetaInfo(metaInfo) {
       this.projectId = metaInfo.projectId;
       this.token = metaInfo.token;
     }
   }, {
     key: "getList",
     value: function getList(parameters) {
-      var _this2 = this;
+      var _this = this;
 
       // see https://www.pivotaltracker.com/help/api/rest/v5#projects_project_id_stories_get
       var request = this._requestObject();
@@ -91,7 +76,7 @@ var Story = (function () {
 
       return new Promise(function (resolve, reject) {
         (0, _axios2["default"])(request).then(function (response) {
-          var stories = _this2._createStoriesFrom(response.data);
+          var stories = _this._createStoriesFrom(response.data);
           resolve(stories);
         })["catch"](reject);
       });
@@ -99,7 +84,7 @@ var Story = (function () {
   }, {
     key: "fetch",
     value: function fetch(id) {
-      var _this3 = this;
+      var _this2 = this;
 
       var request = Story._requestObject();
       request.method = "GET";
@@ -107,7 +92,21 @@ var Story = (function () {
 
       return new Promise(function (resolve, reject) {
         return (0, _axios2["default"])(request).then(function (response) {
-          resolve(new _this3(response.data));
+          resolve(new _this2(response.data));
+        })["catch"](reject);
+      });
+    }
+  }, {
+    key: "new",
+    value: function _new(storyInfo) {
+      var instance = new Story(storyInfo);
+      var request = Story._requestObject();
+      request.method = "POST";
+      request.data = instance;
+
+      return new Promise(function (resolve, reject) {
+        return (0, _axios2["default"])(request).then(function (response) {
+          resolve(instance);
         })["catch"](reject);
       });
     }
@@ -129,10 +128,10 @@ var Story = (function () {
   }, {
     key: "_createStoriesFrom",
     value: function _createStoriesFrom(storyInfoArray) {
-      var _this4 = this;
+      var _this3 = this;
 
       return storyInfoArray.map(function (storyInfo) {
-        return new _this4(storyInfo);
+        return new _this3(storyInfo);
       });
     }
   }, {
