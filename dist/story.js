@@ -14,11 +14,28 @@ var _axios = require("axios");
 
 var _axios2 = _interopRequireDefault(_axios);
 
+var _lodash = require("lodash");
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var Story = (function () {
   function Story(storyInfo) {
     _classCallCheck(this, Story);
 
-    if (storyInfo) this.setProperties(storyInfo);
+    this.kind = storyInfo.kind || 'story';
+    this.id = storyInfo.id || null;
+    this.created_at = storyInfo.created_at || null;
+    this.updated_at = storyInfo.updated_at || null;
+    this.estimate = Number(storyInfo.estimate) || null;
+    this.story_type = storyInfo.story_type || 'feature';
+    this.name = storyInfo.name;
+    this.current_state = storyInfo.current_state || 'started';
+    this.requested_by_id = Number(storyInfo.requested_by_id) || null;
+    this.project_id = Number(storyInfo.project_id) || null;
+    this.url = storyInfo.url || null;
+    this.owner_ids = storyInfo.owner_ids || [];
+    this.labels = storyInfo.labels || [];
+    this.owned_by_id = storyInfo.owned_by_id || null;
   }
 
   // example
@@ -41,48 +58,16 @@ var Story = (function () {
   _createClass(Story, [{
     key: "update",
     value: function update() {}
-  }, {
-    key: "save",
-    value: function save() {
-      var _this = this;
-
-      var request = Story._requestObject();
-      request.method = "POST";
-      request.data = this;
-
-      return new Promise(function (resolve, reject) {
-        return (0, _axios2["default"])(request).then(function (response) {
-          resolve(_this);
-        })["catch"](reject);
-      });
-    }
-  }, {
-    key: "setProperties",
-    value: function setProperties(properties) {
-      this.kind = properties.kind || "";
-      this.id = Number(properties.id) || null;
-      this.project_id = Number(properties.project_id);
-      this.name = properties.name;
-      this.story_type = properties.story_type;
-      this.current_state = properties.current_state;
-      this.estimate = Number(properties.estimate) || null;
-      this.requested_by_id = Number(properties.requested_by_id);
-      this.owner_ids = properties.owner_ids || [];
-      this.labels = properties.labels || [];
-      this.created_at = properties.created_at;
-      this.updated_at = properties.updated_at;
-      this.url = properties.url;
-    }
   }], [{
-    key: "set",
-    value: function set(metaInfo) {
+    key: "setMetaInfo",
+    value: function setMetaInfo(metaInfo) {
       this.projectId = metaInfo.projectId;
       this.token = metaInfo.token;
     }
   }, {
     key: "getList",
     value: function getList(parameters) {
-      var _this2 = this;
+      var _this = this;
 
       // see https://www.pivotaltracker.com/help/api/rest/v5#projects_project_id_stories_get
       var request = this._requestObject();
@@ -91,7 +76,7 @@ var Story = (function () {
 
       return new Promise(function (resolve, reject) {
         (0, _axios2["default"])(request).then(function (response) {
-          var stories = _this2._createStoriesFrom(response.data);
+          var stories = _this._createStoriesFrom(response.data);
           resolve(stories);
         })["catch"](reject);
       });
@@ -99,11 +84,29 @@ var Story = (function () {
   }, {
     key: "fetch",
     value: function fetch(id) {
-      var _this3 = this;
+      var _this2 = this;
 
       var request = Story._requestObject();
       request.method = "GET";
       request.url += "/" + id;
+
+      return new Promise(function (resolve, reject) {
+        return (0, _axios2["default"])(request).then(function (response) {
+          resolve(new _this2(response.data));
+        })["catch"](reject);
+      });
+    }
+  }, {
+    key: "save",
+    value: function save(storyInfo) {
+      var _this3 = this;
+
+      var instance = new Story(storyInfo);
+      var request = Story._requestObject();
+      request.method = "POST";
+      request.data = _lodash2["default"].omit(instance, function (value) {
+        return _lodash2["default"].isNull(value) || value.length === 0;
+      });
 
       return new Promise(function (resolve, reject) {
         return (0, _axios2["default"])(request).then(function (response) {
