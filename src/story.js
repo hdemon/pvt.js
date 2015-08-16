@@ -2,21 +2,6 @@ import axios from "axios"
 
 export default class Story {
   constructor(storyInfo) {
-    Object.getOwnPropertyNames(storyInfo).forEach((property) => { this[property] = storyInfo[property] })
-  }
-
-  fetch() {
-    let request = Story._requestObject()
-    request.method = "GET"
-    request.url += "/" + this.id
-
-    return new Promise( (resolve, reject) => {
-      return axios(request)
-        .then((response) => {
-          Object.getOwnPropertyNames(response.data).forEach((property) => { this[property] = response.data[property] })
-          resolve(this)
-        }).catch(reject)
-    })
   }
 
   update() {
@@ -31,10 +16,25 @@ export default class Story {
     return new Promise( (resolve, reject) => {
       return axios(request)
         .then((response) => {
-          console.log(response);
           resolve(this)
         }).catch(reject)
     })
+  }
+
+  setProperties(properties) {
+    this.kind = properties.kind || ""
+    this.id = Number(properties.id) || null
+    this.project_id = Number(properties.project_id)
+    this.name = properties.name
+    this.story_type = properties.story_type
+    this.current_state = properties.current_state
+    this.estimate = Number(properties.estimate) || null
+    this.requested_by_id = Number(properties.requested_by_id)
+    this.owner_ids = properties.owner_ids || []
+    this.labels = properties.labels || []
+    this.created_at = properties.created_at
+    this.updated_at = properties.updated_at
+    this.url = properties.url
   }
 
   static set(metaInfo) {
@@ -56,6 +56,21 @@ export default class Story {
     })
   }
 
+  static fetch(id) {
+    let request = Story._requestObject()
+    request.method = "GET"
+    request.url += "/" + id
+
+    return new Promise( (resolve, reject) => {
+      return axios(request)
+        .then((response) => {
+          let instance = new this()
+          instance.setProperties(response.data)
+          resolve(instance)
+        }).catch(reject)
+    })
+  }
+
   static _requestObject() {
     return {
       url: `https://www.pivotaltracker.com/services/v5/projects/${this.projectId}/stories`,
@@ -71,7 +86,11 @@ export default class Story {
   }
 
   static _createStoriesFrom(storyInfoArray) {
-    return storyInfoArray.map((storyInfo) => { return new this(storyInfo) })
+    return storyInfoArray.map((storyInfo) => {
+      let instance = new this()
+      instance.setProperties(storyInfo)
+      return instance
+    })
   }
 
   static _parametersToString(parameters) {
