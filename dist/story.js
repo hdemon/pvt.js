@@ -16,9 +16,15 @@ var _axios2 = _interopRequireDefault(_axios);
 
 var Story = (function () {
   function Story(storyInfo) {
+    var _this = this;
+
     _classCallCheck(this, Story);
 
+    this.data = {};
     if (storyInfo) this.setProperties(storyInfo);
+    Object.getOwnPropertyNames(storyInfo).map(function (key) {
+      _this[key] = _this.data[key];
+    });
   }
 
   // example
@@ -44,19 +50,19 @@ var Story = (function () {
   }, {
     key: "setProperties",
     value: function setProperties(properties) {
-      this.kind = properties.kind || "";
-      this.id = Number(properties.id) || null;
-      this.project_id = Number(properties.project_id);
-      this.name = properties.name;
-      this.story_type = properties.story_type;
-      this.current_state = properties.current_state;
-      this.estimate = Number(properties.estimate) || null;
-      this.requested_by_id = Number(properties.requested_by_id);
-      this.owner_ids = properties.owner_ids || [];
-      this.labels = properties.labels || [];
-      this.created_at = properties.created_at;
-      this.updated_at = properties.updated_at;
-      this.url = properties.url;
+      if (properties.kind) this.data.kind = properties.kind || "";
+      if (properties.id) this.data.id = Number(properties.id) || null;
+      if (properties.project_id) this.data.project_id = Number(properties.project_id);
+      if (properties.name) this.data.name = properties.name;
+      if (properties.story_type) this.data.story_type = properties.story_type || "feature";
+      if (properties.current_state) this.data.current_state = properties.current_state;
+      if (properties.estimate) this.data.estimate = Number(properties.estimate) || null;
+      if (properties.requested_by_id) this.data.requested_by_id = Number(properties.requested_by_id);
+      if (properties.owner_ids) this.data.owner_ids = properties.owner_ids || [];
+      if (properties.labels) this.data.labels = properties.labels || [];
+      if (properties.created_at) this.data.created_at = properties.created_at;
+      if (properties.updated_at) this.data.updated_at = properties.updated_at;
+      if (properties.url) this.data.url = properties.url;
     }
   }], [{
     key: "setMetaInfo",
@@ -67,7 +73,7 @@ var Story = (function () {
   }, {
     key: "getList",
     value: function getList(parameters) {
-      var _this = this;
+      var _this2 = this;
 
       // see https://www.pivotaltracker.com/help/api/rest/v5#projects_project_id_stories_get
       var request = this._requestObject();
@@ -76,7 +82,7 @@ var Story = (function () {
 
       return new Promise(function (resolve, reject) {
         (0, _axios2["default"])(request).then(function (response) {
-          var stories = _this._createStoriesFrom(response.data);
+          var stories = _this2._createStoriesFrom(response.data);
           resolve(stories);
         })["catch"](reject);
       });
@@ -84,7 +90,7 @@ var Story = (function () {
   }, {
     key: "fetch",
     value: function fetch(id) {
-      var _this2 = this;
+      var _this3 = this;
 
       var request = Story._requestObject();
       request.method = "GET";
@@ -92,20 +98,22 @@ var Story = (function () {
 
       return new Promise(function (resolve, reject) {
         return (0, _axios2["default"])(request).then(function (response) {
-          resolve(new _this2(response.data));
+          resolve(new _this3(response.data));
         })["catch"](reject);
       });
     }
   }, {
-    key: "new",
-    value: function _new(storyInfo) {
+    key: "save",
+    value: function save(storyInfo) {
       var instance = new Story(storyInfo);
       var request = Story._requestObject();
       request.method = "POST";
-      request.data = instance;
+      request.data = instance.data;
 
       return new Promise(function (resolve, reject) {
         return (0, _axios2["default"])(request).then(function (response) {
+          instance.setProperties(response.data);
+          console.log(response.data);
           resolve(instance);
         })["catch"](reject);
       });
@@ -128,10 +136,10 @@ var Story = (function () {
   }, {
     key: "_createStoriesFrom",
     value: function _createStoriesFrom(storyInfoArray) {
-      var _this3 = this;
+      var _this4 = this;
 
       return storyInfoArray.map(function (storyInfo) {
-        return new _this3(storyInfo);
+        return new _this4(storyInfo);
       });
     }
   }, {

@@ -2,7 +2,14 @@ import axios from "axios"
 
 export default class Story {
   constructor(storyInfo) {
+    this.data = {
+
+
+    }
     if (storyInfo) this.setProperties(storyInfo)
+    Object.getOwnPropertyNames(storyInfo).map((key) => {
+      this[key] = this.data[key]
+    })
   }
 
   update() {
@@ -10,19 +17,19 @@ export default class Story {
   }
 
   setProperties(properties) {
-    this.kind = properties.kind || ""
-    this.id = Number(properties.id) || null
-    this.project_id = Number(properties.project_id)
-    this.name = properties.name
-    this.story_type = properties.story_type
-    this.current_state = properties.current_state
-    this.estimate = Number(properties.estimate) || null
-    this.requested_by_id = Number(properties.requested_by_id)
-    this.owner_ids = properties.owner_ids || []
-    this.labels = properties.labels || []
-    this.created_at = properties.created_at
-    this.updated_at = properties.updated_at
-    this.url = properties.url
+    if (properties.kind) this.data.kind = properties.kind || ""
+    if (properties.id) this.data.id = Number(properties.id) || null
+    if (properties.project_id) this.data.project_id = Number(properties.project_id)
+    if (properties.name) this.data.name = properties.name
+    if (properties.story_type) this.data.story_type = properties.story_type || "feature"
+    if (properties.current_state) this.data.current_state = properties.current_state
+    if (properties.estimate) this.data.estimate = Number(properties.estimate) || null
+    if (properties.requested_by_id) this.data.requested_by_id = Number(properties.requested_by_id)
+    if (properties.owner_ids) this.data.owner_ids = properties.owner_ids || []
+    if (properties.labels) this.data.labels = properties.labels || []
+    if (properties.created_at) this.data.created_at = properties.created_at
+    if (properties.updated_at) this.data.updated_at = properties.updated_at
+    if (properties.url) this.data.url = properties.url
   }
 
   static setMetaInfo(metaInfo) {
@@ -57,15 +64,17 @@ export default class Story {
     })
   }
 
-  static new(storyInfo) {
+  static save(storyInfo) {
     let instance = new Story(storyInfo)
     let request = Story._requestObject()
     request.method = "POST"
-    request.data = instance
+    request.data = instance.data
 
     return new Promise( (resolve, reject) => {
       return axios(request)
         .then((response) => {
+          instance.setProperties(response.data)
+          console.log(response.data);
           resolve(instance)
         }).catch(reject)
     })
