@@ -1,15 +1,15 @@
 {
-  "name": "pvt.js",
+  "name": "pvt",
   "version": "0.1.0",
   "description": "",
-  "main": "",
+  "main": "dist/pvt.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.5.4",
+    "axios": "^0.5.4"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
